@@ -4,21 +4,39 @@ An interactive 2D underwater exploration game written in **C17** for a Programmi
 
 The player controls a submarine, explores an underwater environment, avoids obstacles, discovers a hidden cave, and collects a treasure.
 
-## Current status
+## Development status
 
-**Project setup stage.** The repository is initialized, but gameplay code and a verified browser build have not been added yet.
+**Milestone 1 — browser build setup and movement prototype.**
 
-## Planned technology
+The current prototype draws the underwater scene, animates fish and bubbles, and lets the submarine move with a keyboard or on-screen touch controls. Treasure collection, obstacles, collision rules, mission completion, and result saving are not implemented yet.
 
-- C17 for game logic
-- raylib for 2D drawing, animation, and input
-- Emscripten / WebAssembly for a browser-playable build
-- CMake for the build system
-- GitHub Codespaces for cloud development from an Android browser
+## Technology
 
-The game will target both keyboard and touch controls so it can be demonstrated on a computer or Android phone.
+- **C17** — game code
+- **raylib 6.2** — 2D shapes, drawing, animation, and input
+- **Emscripten / WebAssembly** — browser build
+- **CMake** — build configuration
+- **GitHub Actions** — cloud compilation
 
-## Planned features
+The repository is public. The standard GitHub-hosted runner used by the build workflow is free for public repositories. Do not enable paid runners or paid usage.
+
+## Build
+
+The GitHub Actions workflow builds the browser version whenever code is pushed to `main` or a pull request is opened.
+
+To build in a CMake + Emscripten environment, run:
+
+    emcmake cmake -S . -B build -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release
+    cmake --build build
+
+The output is an HTML file with its JavaScript and WebAssembly files. The workflow stores these as a build artifact.
+
+## Controls
+
+- **W / A / S / D** or **arrow keys** — move the submarine
+- **On-screen directional pad** — move on a touch screen
+
+## Planned game features
 
 - Submarine movement with screen-boundary checks
 - Animated fish and bubbles
@@ -28,29 +46,16 @@ The game will target both keyboard and touch controls so it can be demonstrated 
 - A mission-complete screen
 - Save the mission result using standard C file handling
 
-## Planned C concepts
+## C concepts to demonstrate
 
 | Concept | Intended use |
 |---|---|
 | Variables | Position, speed, score, and game state |
-| Conditions | Movement, collisions, and treasure collection |
+| Conditions | Movement, boundaries, collisions, and treasure collection |
 | Loops | Main game loop and animation |
 | Structures | Submarine, fish, obstacles, and treasure |
 | Functions | Drawing and game mechanics |
 | `FILE` | Saving the mission result |
-
-## Development
-
-The intended development environment is GitHub Codespaces. Open the repository, select **Code → Codespaces → Create codespace on main**, then follow the setup instructions that will be added as the cloud toolchain is configured.
-
-A normal desktop raylib executable is not the target because development and testing are being done from an Android phone. The intended deliverable is a browser build using WebAssembly.
-
-## Controls (planned)
-
-- **W / A / S / D** — Move the submarine
-- **SPACE** — Collect the treasure when close enough
-- **ESC** — Exit
-- **Touch controls** — On-screen controls for phones
 
 ## Project documentation
 
@@ -63,12 +68,12 @@ The final submission will include:
 5. Output screenshots
 6. Group contribution documentation
 
-The project must be explained by the group, including the code. The final implementation will be kept within the topics and rules approved by the instructor.
+The group must be able to explain the code. Keep the implementation suitable for the topics and rules approved by the instructor.
 
 ## Team
 
 Group members and their contributions will be recorded here once confirmed.
 
-## Important
+## Instructor approval
 
-The use of `raylib` is a proposed modern graphics approach. Confirm with the instructor that an external graphics library and the browser/WebAssembly target are acceptable before treating them as approved project requirements.
+raylib is the proposed graphics library. Confirm with the instructor that an external graphics library and a browser/WebAssembly target are allowed before treating this toolchain as the final class-approved setup.
