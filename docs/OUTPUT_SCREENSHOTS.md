@@ -1,13 +1,14 @@
 # Output Screenshots
 
-Add genuine screenshots captured from the compiled game. Do not use concept art, mockups, or screenshots of source code as evidence of program output.
+These images were captured by the GitHub Actions Chromium smoke test from the compiled WebAssembly build on November 27, 2026. They are actual browser output, not concept art.
 
-| Required screen | Screenshot file | Status |
-|---|---|---|
-| Main menu | `screenshots/main-menu.png` | Not captured yet |
-| Underwater gameplay | `screenshots/gameplay.png` | Not captured yet |
-| Submarine movement | `screenshots/submarine-movement.png` | Not captured yet |
-| Treasure cave | `screenshots/treasure-cave.png` | Not captured yet |
-| Mission complete | `screenshots/mission-complete.png` | Not captured yet |
+| Screen | Screenshot |
+|---|---|
+| Main menu | [main-menu.png](../screenshots/main-menu.png) |
+| Underwater gameplay | [gameplay.png](../screenshots/gameplay.png) |
+| Submarine at the cave approach | [treasure-cave.png](../screenshots/treasure-cave.png) |
+| Mission complete | [mission-complete.png](../screenshots/mission-complete.png) |
 
-A successful compiler build does not by itself prove that the game has been visually tested. Update this table only after the corresponding real screenshot has been captured.
+The browser test verifies that the game canvas loads at 960 × 540, the menu can be started, the keyboard route reaches the treasure, and the page reports no JavaScript runtime errors.
+
+These are headless desktop Chromium captures. They are not screenshots from a physical Android phone. Touch behavior still requires a real-device check.
