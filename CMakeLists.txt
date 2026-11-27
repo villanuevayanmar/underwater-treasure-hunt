@@ -21,5 +21,8 @@ target_link_libraries(underwater_treasure_hunt PRIVATE raylib)
 
 if(EMSCRIPTEN)
     set_target_properties(underwater_treasure_hunt PROPERTIES SUFFIX ".html")
-    target_link_options(underwater_treasure_hunt PRIVATE "-sALLOW_MEMORY_GROWTH=1")
+    target_link_options(underwater_treasure_hunt PRIVATE
+        "-sALLOW_MEMORY_GROWTH=1"
+        "-sFORCE_FILESYSTEM=1"
+    )
 endif()
