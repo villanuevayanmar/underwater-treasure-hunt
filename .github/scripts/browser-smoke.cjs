@@ -49,6 +49,13 @@ function countOrange(image, region) {
     return count;
 }
 
+async function clickAt(page, x, y) {
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.waitForTimeout(120);
+    await page.mouse.up();
+}
+
 async function waitForKey(page, key, milliseconds) {
     await page.keyboard.down(key);
     await page.waitForTimeout(milliseconds);
@@ -93,7 +100,8 @@ async function main() {
 
         const menuShot = await page.screenshot({ path: "screenshots/main-menu.png" });
 
-        await page.mouse.click(
+        await clickAt(
+            page,
             canvasBox.x + canvasBox.width * 0.5,
             canvasBox.y + canvasBox.height * (394 / 540)
         );
