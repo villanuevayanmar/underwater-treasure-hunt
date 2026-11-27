@@ -1,6 +1,6 @@
 # Output Screenshots
 
-These images were captured by the GitHub Actions Chromium smoke test from the compiled WebAssembly build on November 27, 2026. They are actual browser output, not concept art.
+These are genuine screenshots captured by the GitHub Actions Chromium test from the compiled WebAssembly game on November 27, 2026. They show actual program output, not concept art.
 
 | Screen | Screenshot |
 |---|---|
@@ -8,7 +8,20 @@ These images were captured by the GitHub Actions Chromium smoke test from the co
 | Underwater gameplay | [gameplay.png](../screenshots/gameplay.png) |
 | Submarine at the cave approach | [treasure-cave.png](../screenshots/treasure-cave.png) |
 | Mission complete | [mission-complete.png](../screenshots/mission-complete.png) |
+| Touch-enabled landscape layout | [mobile-landscape.png](../screenshots/mobile-landscape.png) |
 
-The browser test verifies that the game canvas loads at 960 × 540, the menu can be started, the keyboard route reaches the treasure, and the page reports no JavaScript runtime errors.
+## What the browser test checked
 
-These are headless desktop Chromium captures. They are not screenshots from a physical Android phone. Touch behavior still requires a real-device check.
+The test verified that:
+- The desktop canvas opens at 960 × 540.
+- The title screen starts the game.
+- Keyboard input moves the submarine to the cave.
+- The submarine stops when it reaches a rock.
+- The nearby treasure can be collected and opens the completion screen.
+- The result text can be read back from the WebAssembly virtual file system.
+- Play Again resets the mission.
+- ESC and the Main Menu button return to the title screen.
+- An 844 × 475 landscape touch-emulated viewport fits the game.
+- Touch input starts the game and moves the submarine with the directional pad.
+
+The mobile screenshot is a Chromium touch-emulation capture. It is **not** a screenshot from a physical Android phone. A real-device check is still required before claiming physical Android compatibility.
