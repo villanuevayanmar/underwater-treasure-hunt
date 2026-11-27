@@ -49,6 +49,36 @@ function countOrange(image, region) {
     return count;
 }
 
+function orangeCentroid(image, region) {
+    const png = PNG.sync.read(image);
+    const left = Math.max(0, Math.floor(region.x));
+    const top = Math.max(0, Math.floor(region.y));
+    const right = Math.min(png.width, Math.ceil(region.x + region.width));
+    const bottom = Math.min(png.height, Math.ceil(region.y + region.height));
+    let count = 0;
+    let sumX = 0;
+    let sumY = 0;
+
+    for (let y = top; y < bottom; y++) {
+        for (let x = left; x < right; x++) {
+            const i = (y * png.width + x) * 4;
+            const red = png.data[i];
+            const green = png.data[i + 1];
+            const blue = png.data[i + 2];
+
+            if (red > 165 && green > 75 && green < 185 &&
+                blue < 115 && red > green * 1.15) {
+                count++;
+                sumX += x;
+                sumY += y;
+            }
+        }
+    }
+
+    if (count === 0) return null;
+    return { x: sumX / count, y: sumY / count, count };
+}
+
 async function clickAt(page, x, y) {
     await page.mouse.move(x, y);
     await page.mouse.down();
@@ -115,6 +145,36 @@ async function main() {
                 "Screenshot difference: " + startChange.toFixed(3));
         }
 
+        await waitForKey(page, "w", 250);
+        await waitForKey(page, "d", 1300);
+
+        const blockedPosition = await page.screenshot();
+        const firstRockPosition = orangeCentroid(blockedPosition, {
+            x: 215, y: 175, width: 160, height: 70
+        });
+
+        await waitForKey(page, "d", 500);
+        const heldAgainstRock = await page.screenshot();
+        const secondRockPosition = orangeCentroid(heldAgainstRock, {
+            x: 215, y: 175, width: 160, height: 70
+        });
+
+        if (!firstRockPosition || !secondRockPosition ||
+            firstRockPosition.x < 250 || firstRockPosition.x > 320 ||
+            Math.abs(firstRockPosition.x - secondRockPosition.x) > 3) {
+            throw new Error("The submarine did not stop against the first rock. " +
+                JSON.stringify({ firstRockPosition, secondRockPosition }));
+        }
+
+        await page.keyboard.press("Escape");
+        await page.waitForTimeout(350);
+        await clickAt(
+            page,
+            canvasBox.x + canvasBox.width * 0.5,
+            canvasBox.y + canvasBox.height * (394 / 540)
+        );
+        await page.waitForTimeout(350);
+
         await waitForKey(page, "w", 700);
         await waitForKey(page, "d", 3300);
         await waitForKey(page, "s", 1000);
@@ -141,6 +201,67 @@ async function main() {
         if (completionChange < 0.08) {
             throw new Error("Collecting the nearby treasure did not open the completion screen. " +
                 "Screenshot difference: " + completionChange.toFixed(3));
+        }
+
+        const savedResult = await page.evaluate(() => {
+            const fileSystem = window.FS || (window.Module && window.Module.FS);
+            if (!fileSystem) return null;
+            return fileSystem.readFile("mission_result.txt", { encoding: "utf8" });
+        });
+
+        if (!savedResult || !savedResult.includes("Mission: Complete") ||
+            !savedResult.includes("Time:")) {
+            throw new Error("mission_result.txt was not written with the mission result.");
+        }
+
+        await clickAt(
+            page,
+            canvasBox.x + canvasBox.width * (365 / 960),
+            canvasBox.y + canvasBox.height * (409 / 540)
+        );
+        await page.waitForTimeout(350);
+
+        const restartedShot = await page.screenshot();
+        const submarineAfterRestart = countOrange(restartedShot, {
+            x: 55, y: 210, width: 145, height: 95
+        });
+
+        if (changedRatio(completeShot, restartedShot) < 0.08 ||
+            submarineAfterRestart < 500) {
+            throw new Error("Play Again did not restart the mission at the starting position.");
+        }
+
+        await page.keyboard.press("Escape");
+        await page.waitForTimeout(350);
+
+        const returnedMenuShot = await page.screenshot();
+        if (changedRatio(restartedShot, returnedMenuShot) < 0.08) {
+            throw new Error("ESC did not return to the title screen.");
+        }
+
+        await clickAt(
+            page,
+            canvasBox.x + canvasBox.width * 0.5,
+            canvasBox.y + canvasBox.height * (394 / 540)
+        );
+        await page.waitForTimeout(350);
+        await waitForKey(page, "w", 700);
+        await waitForKey(page, "d", 3300);
+        await waitForKey(page, "s", 1000);
+        await page.keyboard.press("Space");
+        await page.waitForTimeout(350);
+
+        const secondCompleteShot = await page.screenshot();
+        await clickAt(
+            page,
+            canvasBox.x + canvasBox.width * (595 / 960),
+            canvasBox.y + canvasBox.height * (409 / 540)
+        );
+        await page.waitForTimeout(350);
+
+        const mainMenuButtonShot = await page.screenshot();
+        if (changedRatio(secondCompleteShot, mainMenuButtonShot) < 0.08) {
+            throw new Error("The Main Menu button did not return to the title screen.");
         }
 
         const mobilePage = await browser.newPage({
@@ -224,8 +345,8 @@ async function main() {
         }
 
         console.log("Desktop and touch-enabled browser tests passed.");
-        console.log("Verified menu start, keyboard navigation, cave arrival, and treasure completion.");
-        console.log("Verified landscape canvas scaling and a held touch movement.");
+        console.log("Verified rock blocking, treasure collection, FILE save, Play Again, and Main Menu.");
+        console.log("Verified landscape canvas scaling, touch start, and held touch movement.");
     } finally {
         await browser.close();
     }
