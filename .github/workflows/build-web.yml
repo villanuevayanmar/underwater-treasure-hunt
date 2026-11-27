@@ -1,0 +1,56 @@
+name: Build browser version
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Install CMake and Ninja
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+
+      - name: Install Emscripten
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          version: 5.0.5
+
+      - name: Check compiler
+        run: |
+          emcc --version
+          cmake --version
+
+      - name: Configure browser build
+        run: emcmake cmake -S . -B build -G Ninja -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile game
+        run: cmake --build build --parallel 2
+
+      - name: Check build output
+        run: |
+          test -s build/underwater_treasure_hunt.html
+          test -s build/underwater_treasure_hunt.js
+          test -s build/underwater_treasure_hunt.wasm
+
+      - name: Save browser build
+        uses: actions/upload-artifact@v7
+        with:
+          name: underwater-treasure-hunt-web
+          path: |
+            build/underwater_treasure_hunt.html
+            build/underwater_treasure_hunt.js
+            build/underwater_treasure_hunt.wasm
+          if-no-files-found: error
+          retention-days: 7
