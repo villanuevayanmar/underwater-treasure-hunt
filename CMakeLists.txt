@@ -24,5 +24,6 @@ if(EMSCRIPTEN)
     target_link_options(underwater_treasure_hunt PRIVATE
         "-sALLOW_MEMORY_GROWTH=1"
         "-sFORCE_FILESYSTEM=1"
+        "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/src/web_shell.html"
     )
 endif()
