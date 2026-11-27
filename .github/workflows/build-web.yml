@@ -3,7 +3,17 @@ name: Build browser version
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/build-web.yml"
+      - ".github/scripts/**"
   pull_request:
+    paths:
+      - "src/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/build-web.yml"
+      - ".github/scripts/**"
   workflow_dispatch:
 
 concurrency:
@@ -63,7 +73,7 @@ jobs:
             sleep 1
           done
 
-      - name: Test the game in Chromium
+      - name: Test desktop and touch-enabled browser layouts
         env:
           NODE_PATH: /tmp/underwater-playwright/node_modules
         run: node .github/scripts/browser-smoke.cjs
