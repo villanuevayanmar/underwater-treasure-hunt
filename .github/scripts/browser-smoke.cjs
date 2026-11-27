@@ -145,6 +145,14 @@ async function main() {
                 "Screenshot difference: " + startChange.toFixed(3));
         }
 
+        await page.keyboard.press("Space");
+        await page.waitForTimeout(300);
+        const farInteractionShot = await page.screenshot();
+
+        if (changedRatio(gameplayShot, farInteractionShot) > 0.08) {
+            throw new Error("The treasure was collected while the submarine was still far away.");
+        }
+
         await waitForKey(page, "w", 700);
         await waitForKey(page, "d", 3300);
         await waitForKey(page, "s", 1000);
