@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#041e32">
+    <title>Underwater Treasure Hunt: The Lost Treasure</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #041e32;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        canvas.emscripten {
+            display: block;
+            width: min(100vw, 177.7778vh);
+            height: min(100vh, 56.25vw);
+            aspect-ratio: 16 / 9;
+            touch-action: none;
+            outline: none;
+        }
+        #rotate-message {
+            display: none;
+            max-width: 280px;
+            padding: 24px;
+            color: #e9f7ff;
+            font: 600 20px/1.5 Arial, sans-serif;
+            text-align: center;
+        }
+        @media (orientation: portrait) and (max-width: 800px) {
+            canvas.emscripten { display: none; }
+            #rotate-message { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div id="rotate-message">Please rotate your phone to landscape to explore the ocean.</div>
+    <canvas class="emscripten" id="canvas" width="960" height="540"
+            oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
+    <script>
+        var Module = {
+            canvas: document.getElementById("canvas"),
+            print: function() { console.log.apply(console, arguments); },
+            printErr: function() { console.error.apply(console, arguments); }
+        };
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>
