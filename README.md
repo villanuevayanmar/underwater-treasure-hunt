@@ -1,79 +1,111 @@
 # Underwater Treasure Hunt: The Lost Treasure
 
-An interactive 2D underwater exploration game written in **C17** for a Programming 1 animation project.
+An interactive 2D underwater exploration game written in **C17** for a Programming 1 final animation project.
 
-The player controls a submarine, explores an underwater environment, avoids obstacles, discovers a hidden cave, and collects a treasure.
+Pilot a submarine through the ocean, avoid rocks, find the hidden cave, and collect the lost treasure.
 
-## Development status
+## Current status
 
-**Milestone 1 — browser build setup and movement prototype.**
+**Playable browser version — first complete gameplay loop.**
 
-The current prototype draws the underwater scene, animates fish and bubbles, and lets the submarine move with a keyboard or on-screen touch controls. Treasure collection, obstacles, collision rules, mission completion, and result saving are not implemented yet.
+Implemented:
+- Title screen with start control and instructions
+- Underwater scenery made with raylib shapes
+- Moving fish and rising bubbles
+- Submarine movement using WASD or arrow keys
+- On-screen directional controls for touch screens
+- Screen-boundary checks and rock collision detection
+- Cave and treasure chest
+- SPACE / COLLECT interaction with a proximity check
+- Mission-complete screen with elapsed time
+- Restart and main-menu actions
+- Mission result written with standard C file handling
 
 ## Technology
 
-- **C17** — game code
-- **raylib 6.2** — 2D shapes, drawing, animation, and input
-- **Emscripten / WebAssembly** — browser build
+- **C17** — game logic
+- **raylib 6.2** — drawing, animation, input, and collision checks
 - **CMake** — build configuration
-- **GitHub Actions** — cloud compilation
+- **Emscripten / WebAssembly** — browser build
+- **GitHub Actions** — cloud build and Chromium smoke test
 
-The repository is public. The standard GitHub-hosted runner used by the build workflow is free for public repositories. Do not enable paid runners or paid usage.
+The repository is public. The workflow uses GitHub-hosted runners for a public repository and does not require Codespaces or a paid runner. Do not enable paid usage.
 
-## Build
+## Play and inspect
 
-The GitHub Actions workflow builds the browser version whenever code is pushed to `main` or a pull request is opened.
+The latest successful build and its downloadable artifact are available from [GitHub Actions](https://github.com/villanuevayanmar/underwater-treasure-hunt/actions/workflows/build-web.yml).
 
-To build in a CMake + Emscripten environment, run:
+The browser build contains three files that must stay together:
+- `underwater_treasure_hunt.html`
+- `underwater_treasure_hunt.js`
+- `underwater_treasure_hunt.wasm`
 
-    emcmake cmake -S . -B build -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release
-    cmake --build build
-
-The output is an HTML file with its JavaScript and WebAssembly files. The workflow stores these as a build artifact.
+The generated HTML should be opened through a web server or static host that serves the WebAssembly file with the correct MIME type. Opening the HTML directly from a phone's file manager may not work.
 
 ## Controls
 
-- **W / A / S / D** or **arrow keys** — move the submarine
-- **On-screen directional pad** — move on a touch screen
-
-## Planned game features
-
-- Submarine movement with screen-boundary checks
-- Animated fish and bubbles
-- Underwater scenery made from basic shapes
-- Obstacles and collision detection
-- A hidden cave and one treasure objective
-- A mission-complete screen
-- Save the mission result using standard C file handling
-
-## C concepts to demonstrate
-
-| Concept | Intended use |
+| Input | Action |
 |---|---|
-| Variables | Position, speed, score, and game state |
-| Conditions | Movement, boundaries, collisions, and treasure collection |
-| Loops | Main game loop and animation |
-| Structures | Submarine, fish, obstacles, and treasure |
-| Functions | Drawing and game mechanics |
-| `FILE` | Saving the mission result |
+| W / Up Arrow | Move up |
+| S / Down Arrow | Move down |
+| A / Left Arrow | Move left |
+| D / Right Arrow | Move right |
+| SPACE | Collect the treasure when close |
+| On-screen directional pad | Move on a touch screen |
+| COLLECT button | Try to collect the treasure |
+| ESC | Return to the title screen during the mission |
 
-## Project documentation
+## Game objective
 
-The final submission will include:
+1. Start the mission from the title screen.
+2. Explore the ocean and avoid the rocks.
+3. Find the dark cave on the right side.
+4. Move close to the treasure chest.
+5. Press SPACE or tap COLLECT.
+6. View the mission result and choose Play Again or Main Menu.
 
-1. Storyline
-2. Flowchart
-3. Algorithm
-4. Source code
-5. Output screenshots
-6. Group contribution documentation
+## File handling note
 
-The group must be able to explain the code. Keep the implementation suitable for the topics and rules approved by the instructor.
+When the treasure is collected, the program uses `fopen`, `fprintf`, and `fclose` to write `mission_result.txt`.
+
+In the WebAssembly build, this file is stored in Emscripten's virtual file system for the current session. This version does not download the file to the phone or guarantee that it persists after the browser page closes or refreshes.
+
+## C concepts demonstrated
+
+| Concept | Use in the game |
+|---|---|
+| Variables | Position, speed, timer, game state |
+| Conditions | Movement, collisions, treasure interaction, screen changes |
+| Loops | Main game loop and object updates |
+| Structures | Submarine, fish, bubbles, obstacles, treasure |
+| Functions | Input, movement, collision, drawing, file saving |
+| File handling | Saving the mission result with `FILE` |
+
+## Documentation
+
+- [Storyline](docs/STORYLINE.md)
+- [Flowchart](docs/FLOWCHART.md)
+- [Algorithm](docs/ALGORITHM.md)
+- [Beginner code explanation](docs/CODE_EXPLANATION.md)
+- [Output screenshots](docs/OUTPUT_SCREENSHOTS.md)
+- [Group contributions template](docs/GROUP_CONTRIBUTIONS.md)
+
+## Testing status
+
+The GitHub Actions workflow has successfully:
+- Configured the C17 / raylib / Emscripten build
+- Compiled the game
+- Verified that the HTML, JavaScript, and WebAssembly outputs exist
+- Loaded the game in headless Chromium
+- Captured the title, gameplay, cave-approach, and mission-complete screens
+- Completed the scripted keyboard route without browser JavaScript errors
+
+A physical Android device test has not yet been performed. The touch controls are implemented, but must still be checked on the actual phone before the group claims mobile behavior is fully verified.
 
 ## Team
 
-Group members and their contributions will be recorded here once confirmed.
+Group members and their actual contributions are recorded in [GROUP_CONTRIBUTIONS.md](docs/GROUP_CONTRIBUTIONS.md). Fill in names and completed work before submission.
 
 ## Instructor approval
 
-raylib is the proposed graphics library. Confirm with the instructor that an external graphics library and a browser/WebAssembly target are allowed before treating this toolchain as the final class-approved setup.
+raylib and the WebAssembly/browser target are still proposed technologies. Confirm with the instructor that an external graphics library and this target are acceptable for the assignment. Do not represent them as approved until confirmed.
