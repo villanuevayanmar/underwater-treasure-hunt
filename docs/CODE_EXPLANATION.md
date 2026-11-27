@@ -4,10 +4,9 @@ The game source is in [`src/main.c`](../src/main.c). It uses C17 and raylib 6.2.
 
 ## 1. Header files
 
-- `raylib.h` gives the program drawing, keyboard, mouse, touch, and collision functions.
-- `math.h` provides mathematical functions if needed by the C program.
+- `raylib.h` provides drawing, keyboard, mouse, touch, timing, and collision functions.
 - `stdio.h` provides `FILE`, `fopen`, `fprintf`, and `fclose`.
-- The Emscripten header is included only for a browser build. It allows the browser to keep calling the game frame function.
+- The Emscripten header is included only for a browser build. It lets the browser repeatedly call the game frame function.
 
 ## 2. Constants
 
@@ -21,7 +20,7 @@ The `GameState` enum has three values:
 - `PLAYING`: update the submarine and run the mission.
 - `COMPLETE`: show the result after the treasure is collected.
 
-The program uses conditions to decide which update and drawing functions to call.
+Conditions in the main update function decide which screen and logic should run.
 
 ## 4. Structures
 
@@ -39,21 +38,27 @@ For example, `submarine.position.x` is the submarine's horizontal position.
 
 The fish, bubbles, and obstacles are stored in arrays. A `for` loop updates or draws each item. This is simpler than writing separate code for every fish or bubble.
 
-## 6. Movement and conditions
+## 6. Input and movement
 
-`UpdateGame` reads keyboard and touch input. It calculates a possible next position and checks it before changing the submarine's real position.
+`UpdateGame` reads keyboard and touch input. W/A/S/D and the arrow keys change the movement direction. The on-screen directional pad checks the active touch points, so a direction stays active while a finger is held on it.
 
-`IsBlocked` checks the submarine against each obstacle using `CheckCollisionCircles`. If a rock blocks the next position, the submarine does not move into it and a short warning appears.
+The one-shot Start and COLLECT buttons accept mouse presses and held touch input. The custom [`src/web_shell.html`](../src/web_shell.html) scales the 16:9 game canvas to fit a landscape browser viewport and shows a rotate-to-landscape message on small portrait screens.
 
-The movement uses `GetFrameTime()`. This makes movement depend on elapsed time instead of assuming every device draws exactly the same number of frames per second.
+The game uses `GetFrameTime()` to calculate movement from elapsed time instead of assuming every device draws exactly the same number of frames per second. Diagonal movement is reduced so it is not faster than straight movement.
 
-## 7. Treasure interaction
+## 7. Boundaries and collisions
 
-`NearTreasure` checks whether the submarine is close enough to the chest. The SPACE key or COLLECT button only succeeds when the submarine is within that range.
+The submarine's next position is calculated first. The program keeps that position inside the play area, then calls `IsBlocked` to compare the submarine with each rock using `CheckCollisionCircles`.
+
+If the next position touches a rock, the program does not move the submarine into it and shows a short warning. The automated browser test presses the submarine into a rock and checks that its position stops changing.
+
+## 8. Treasure interaction
+
+`NearTreasure` checks whether the submarine is close enough to the chest. SPACE or the COLLECT button only succeeds when the submarine is within that distance.
 
 After collection, `treasure.collected` becomes `true` and the game changes to the `COMPLETE` state. This prevents collecting the same treasure repeatedly.
 
-## 8. File handling
+## 9. File handling
 
 `SaveMissionResult` demonstrates standard C file handling:
 
@@ -62,9 +67,9 @@ After collection, `treasure.collected` becomes `true` and the game changes to th
 3. `fprintf` writes the mission name, result, and time.
 4. `fclose` closes the file and its result is checked.
 
-In the WebAssembly version, this file is written into Emscripten's virtual file system. This project does **not** currently copy it to the phone's Downloads folder or promise that it survives a page refresh. The result is for the current browser game session.
+In the WebAssembly version, this file is written into Emscripten's virtual file system. It is not copied to the phone's Downloads folder and is not guaranteed to survive a page refresh. The automated browser test reads it from the virtual file system during the running session.
 
-## 9. Main loop
+## 10. Main loop
 
 `UpdateDrawFrame` is called repeatedly:
 
@@ -74,10 +79,10 @@ In the WebAssembly version, this file is written into Emscripten's virtual file 
 - Draw the correct screen.
 - End drawing.
 
-On desktop, the program calls this function inside a `while` loop. In the WebAssembly build, Emscripten calls it using its browser main-loop function.
+On desktop, the program calls this function inside a `while` loop. In the WebAssembly build, Emscripten calls it through its browser main-loop function.
 
-## 10. Build configuration
+## 11. Build configuration
 
 `CMakeLists.txt` sets the language standard to C17, downloads raylib 6.2 as a build dependency, and links raylib to the game.
 
-The GitHub Actions workflow installs Emscripten and builds the HTML, JavaScript, and WebAssembly files in the cloud.
+The GitHub Actions workflow installs Emscripten, compiles the HTML, JavaScript, and WebAssembly files, and runs the Chromium test script.
