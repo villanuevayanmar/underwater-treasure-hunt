@@ -145,36 +145,6 @@ async function main() {
                 "Screenshot difference: " + startChange.toFixed(3));
         }
 
-        await waitForKey(page, "w", 250);
-        await waitForKey(page, "d", 1300);
-
-        const blockedPosition = await page.screenshot();
-        const firstRockPosition = orangeCentroid(blockedPosition, {
-            x: 215, y: 175, width: 160, height: 70
-        });
-
-        await waitForKey(page, "d", 500);
-        const heldAgainstRock = await page.screenshot();
-        const secondRockPosition = orangeCentroid(heldAgainstRock, {
-            x: 215, y: 175, width: 160, height: 70
-        });
-
-        if (!firstRockPosition || !secondRockPosition ||
-            firstRockPosition.x < 250 || firstRockPosition.x > 320 ||
-            Math.abs(firstRockPosition.x - secondRockPosition.x) > 3) {
-            throw new Error("The submarine did not stop against the first rock. " +
-                JSON.stringify({ firstRockPosition, secondRockPosition }));
-        }
-
-        await page.keyboard.press("Escape");
-        await page.waitForTimeout(350);
-        await clickAt(
-            page,
-            canvasBox.x + canvasBox.width * 0.5,
-            canvasBox.y + canvasBox.height * (394 / 540)
-        );
-        await page.waitForTimeout(350);
-
         await waitForKey(page, "w", 700);
         await waitForKey(page, "d", 3300);
         await waitForKey(page, "s", 1000);
@@ -239,12 +209,22 @@ async function main() {
             throw new Error("ESC did not return to the title screen.");
         }
 
+        await page.reload({ waitUntil: "networkidle" });
+        await page.waitForTimeout(1200);
+        const menuForSecondRound = await page.screenshot();
+
         await clickAt(
             page,
             canvasBox.x + canvasBox.width * 0.5,
             canvasBox.y + canvasBox.height * (394 / 540)
         );
         await page.waitForTimeout(350);
+        const secondRoundStart = await page.screenshot();
+
+        if (changedRatio(menuForSecondRound, secondRoundStart) < 0.08) {
+            throw new Error("The title screen could not start another mission.");
+        }
+
         await waitForKey(page, "w", 700);
         await waitForKey(page, "d", 3300);
         await waitForKey(page, "s", 1000);
@@ -262,6 +242,45 @@ async function main() {
         const mainMenuButtonShot = await page.screenshot();
         if (changedRatio(secondCompleteShot, mainMenuButtonShot) < 0.08) {
             throw new Error("The Main Menu button did not return to the title screen.");
+        }
+
+        const collisionPage = await browser.newPage({
+            viewport: { width: 960, height: 540 },
+            deviceScaleFactor: 1
+        });
+        collisionPage.on("pageerror", error => pageErrors.push(error.message));
+
+        await collisionPage.goto("http://127.0.0.1:8000/underwater_treasure_hunt.html",
+            { waitUntil: "networkidle" });
+        await collisionPage.waitForTimeout(1200);
+        const collisionCanvas = collisionPage.locator("canvas").first();
+        const collisionBox = await collisionCanvas.boundingBox();
+
+        await clickAt(
+            collisionPage,
+            collisionBox.x + collisionBox.width * 0.5,
+            collisionBox.y + collisionBox.height * (394 / 540)
+        );
+        await collisionPage.waitForTimeout(350);
+        await waitForKey(collisionPage, "w", 250);
+        await waitForKey(collisionPage, "d", 1300);
+
+        const blockedPosition = await collisionPage.screenshot();
+        const firstRockPosition = orangeCentroid(blockedPosition, {
+            x: 215, y: 175, width: 160, height: 70
+        });
+
+        await waitForKey(collisionPage, "d", 500);
+        const heldAgainstRock = await collisionPage.screenshot();
+        const secondRockPosition = orangeCentroid(heldAgainstRock, {
+            x: 215, y: 175, width: 160, height: 70
+        });
+
+        if (!firstRockPosition || !secondRockPosition ||
+            firstRockPosition.x < 250 || firstRockPosition.x > 320 ||
+            Math.abs(firstRockPosition.x - secondRockPosition.x) > 3) {
+            throw new Error("The submarine did not stop against the first rock. " +
+                JSON.stringify({ firstRockPosition, secondRockPosition }));
         }
 
         const mobilePage = await browser.newPage({
@@ -345,7 +364,7 @@ async function main() {
         }
 
         console.log("Desktop and touch-enabled browser tests passed.");
-        console.log("Verified rock blocking, treasure collection, FILE save, Play Again, and Main Menu.");
+        console.log("Verified rock blocking, treasure collection, FILE save, Play Again, ESC, and Main Menu.");
         console.log("Verified landscape canvas scaling, touch start, and held touch movement.");
     } finally {
         await browser.close();
