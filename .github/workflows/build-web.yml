@@ -78,14 +78,43 @@ jobs:
           NODE_PATH: /tmp/underwater-playwright/node_modules
         run: node .github/scripts/browser-smoke.cjs
 
+      - name: Prepare Vercel static site
+        run: |
+          mkdir -p site
+          cp build/underwater_treasure_hunt.html site/index.html
+          cp build/underwater_treasure_hunt.js site/
+          cp build/underwater_treasure_hunt.wasm site/
+          cat > site/vercel.json <<'EOF'
+          {
+            "$schema": "https://openapi.vercel.sh/vercel.json",
+            "headers": [
+              {
+                "source": "/underwater_treasure_hunt.wasm",
+                "headers": [
+                  { "key": "Content-Type", "value": "application/wasm" },
+                  { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+                ]
+              },
+              {
+                "source": "/(.*)",
+                "headers": [
+                  { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+                ]
+              }
+            ]
+          }
+          EOF
+          test -s site/index.html
+          test -s site/underwater_treasure_hunt.js
+          test -s site/underwater_treasure_hunt.wasm
+          test -s site/vercel.json
+
       - name: Save browser build and screenshots
         uses: actions/upload-artifact@v7
         with:
           name: underwater-treasure-hunt-web
           path: |
-            build/underwater_treasure_hunt.html
-            build/underwater_treasure_hunt.js
-            build/underwater_treasure_hunt.wasm
+            site/*
             screenshots/*.png
           if-no-files-found: error
           retention-days: 7
