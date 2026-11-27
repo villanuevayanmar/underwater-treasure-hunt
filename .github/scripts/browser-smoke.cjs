@@ -165,24 +165,37 @@ async function main() {
         }
 
         const mobileMenuShot = await mobilePage.screenshot();
-        await mobilePage.touchscreen.tap(
-            mobileBox.x + mobileBox.width * 0.5,
-            mobileBox.y + mobileBox.height * (394 / 540)
-        );
+        const touchSession = await mobilePage.context().newCDPSession(mobilePage);
+
+        await touchSession.send("Input.dispatchTouchEvent", {
+            type: "touchStart",
+            touchPoints: [{
+                id: 2,
+                x: mobileBox.x + mobileBox.width * 0.5,
+                y: mobileBox.y + mobileBox.height * (394 / 540),
+                radiusX: 9,
+                radiusY: 9,
+                force: 1
+            }]
+        });
         await mobilePage.waitForTimeout(350);
+        await touchSession.send("Input.dispatchTouchEvent", {
+            type: "touchEnd",
+            touchPoints: []
+        });
+        await mobilePage.waitForTimeout(250);
 
         const mobileGameShot = await mobilePage.screenshot();
         if (changedRatio(mobileMenuShot, mobileGameShot) < 0.08) {
             throw new Error("Touching the Start button did not open mobile gameplay.");
         }
 
-        const touchSession = await mobilePage.context().newCDPSession(mobilePage);
         await touchSession.send("Input.dispatchTouchEvent", {
             type: "touchStart",
             touchPoints: [{
                 id: 1,
-                x: mobileBox.x + mobileBox.width * (160 / 960),
-                y: mobileBox.y + mobileBox.height * (430 / 540),
+                x: mobileBox.x + mobileBox.width * (181 / 960),
+                y: mobileBox.y + mobileBox.height * (451 / 540),
                 radiusX: 8,
                 radiusY: 8,
                 force: 1
