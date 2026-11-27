@@ -34,7 +34,7 @@ The repository is public. The workflow uses a standard GitHub-hosted runner; it 
 
 ## Browser build
 
-The latest successful build and its downloadable artifact are available from the [successful GitHub Actions run](https://github.com/villanuevayanmar/underwater-treasure-hunt/actions/runs/45999655628).
+The latest successful build and its downloadable artifact are available from the [successful GitHub Actions run](https://github.com/villanuevayanmar/underwater-treasure-hunt/actions/runs/46000246011).
 
 The browser build contains three files that must stay together:
 - `underwater_treasure_hunt.html`
@@ -101,6 +101,7 @@ The latest GitHub Actions run completed successfully. It:
 - Loaded the game in headless Chromium without browser page errors
 - Started the game and moved the submarine with keyboard input
 - Verified that the submarine stops against a rock
+- Confirmed SPACE cannot collect the treasure while the submarine is far away
 - Reached the cave and completed the treasure interaction
 - Read back `mission_result.txt` and verified the saved mission text
 - Verified Play Again resets the mission
