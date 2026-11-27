@@ -6,20 +6,21 @@ Pilot a submarine through the ocean, avoid rocks, find the hidden cave, and coll
 
 ## Current status
 
-**Playable browser version — first complete gameplay loop.**
+**Playable browser game — main gameplay loop implemented and browser-tested.**
 
 Implemented:
-- Title screen with start control and instructions
-- Underwater scenery made with raylib shapes
+- Title screen with instructions and Start button
+- Underwater scenery drawn with raylib shapes
 - Moving fish and rising bubbles
-- Submarine movement using WASD or arrow keys
+- Submarine movement with WASD and arrow keys
 - On-screen directional controls for touch screens
-- Screen-boundary checks and rock collision detection
-- Cave and treasure chest
+- Responsive 16:9 browser canvas and a portrait rotate-to-landscape notice
+- Screen boundaries and rock collision detection
+- Hidden cave and treasure chest
 - SPACE / COLLECT interaction with a proximity check
-- Mission-complete screen with elapsed time
-- Restart and main-menu actions
-- Mission result written with standard C file handling
+- Mission-complete screen with exploration time
+- Play Again, Main Menu, and ESC navigation
+- Mission result saved using standard C file handling
 
 ## Technology
 
@@ -27,20 +28,22 @@ Implemented:
 - **raylib 6.2** — drawing, animation, input, and collision checks
 - **CMake** — build configuration
 - **Emscripten / WebAssembly** — browser build
-- **GitHub Actions** — cloud build and Chromium smoke test
+- **GitHub Actions** — cloud compilation and Chromium tests
 
-The repository is public. The workflow uses GitHub-hosted runners for a public repository and does not require Codespaces or a paid runner. Do not enable paid usage.
+The repository is public. The workflow uses a standard GitHub-hosted runner; it does not require a Codespaces session or a paid runner. Do not enable paid usage.
 
-## Play and inspect
+## Browser build
 
-The latest successful build and its downloadable artifact are available from [GitHub Actions](https://github.com/villanuevayanmar/underwater-treasure-hunt/actions/workflows/build-web.yml).
+The latest successful build and its downloadable artifact are available from the [successful GitHub Actions run](https://github.com/villanuevayanmar/underwater-treasure-hunt/actions/runs/45999655628).
 
 The browser build contains three files that must stay together:
 - `underwater_treasure_hunt.html`
 - `underwater_treasure_hunt.js`
 - `underwater_treasure_hunt.wasm`
 
-The generated HTML should be opened through a web server or static host that serves the WebAssembly file with the correct MIME type. Opening the HTML directly from a phone's file manager may not work.
+The HTML must be served over HTTP/HTTPS so the browser can load the JavaScript and WebAssembly files. Opening the HTML directly from a phone's file manager may not work. The artifact is temporary and expires after 7 days.
+
+A permanent public playable URL has not been deployed yet.
 
 ## Controls
 
@@ -66,9 +69,9 @@ The generated HTML should be opened through a web server or static host that ser
 
 ## File handling note
 
-When the treasure is collected, the program uses `fopen`, `fprintf`, and `fclose` to write `mission_result.txt`.
+When the treasure is collected, the program uses `fopen`, `fprintf`, and `fclose` to write `mission_result.txt`. The browser test reads the file back from Emscripten's virtual file system and checks its contents.
 
-In the WebAssembly build, this file is stored in Emscripten's virtual file system for the current session. This version does not download the file to the phone or guarantee that it persists after the browser page closes or refreshes.
+In the WebAssembly build, this file is stored in the virtual file system for the current session. This version does **not** download the file to the phone or guarantee that it persists after the browser page closes or refreshes.
 
 ## C concepts demonstrated
 
@@ -90,17 +93,23 @@ In the WebAssembly build, this file is stored in Emscripten's virtual file syste
 - [Output screenshots](docs/OUTPUT_SCREENSHOTS.md)
 - [Group contributions template](docs/GROUP_CONTRIBUTIONS.md)
 
-## Testing status
+## Test results
 
-The GitHub Actions workflow has successfully:
-- Configured the C17 / raylib / Emscripten build
-- Compiled the game
-- Verified that the HTML, JavaScript, and WebAssembly outputs exist
-- Loaded the game in headless Chromium
-- Captured the title, gameplay, cave-approach, and mission-complete screens
-- Completed the scripted keyboard route without browser JavaScript errors
+The latest GitHub Actions run completed successfully. It:
+- Configured and compiled the C17 / raylib / Emscripten project
+- Verified the generated HTML, JavaScript, and WebAssembly files
+- Loaded the game in headless Chromium without browser page errors
+- Started the game and moved the submarine with keyboard input
+- Verified that the submarine stops against a rock
+- Reached the cave and completed the treasure interaction
+- Read back `mission_result.txt` and verified the saved mission text
+- Verified Play Again resets the mission
+- Verified ESC and the Main Menu button return to the title screen
+- Tested the landscape mobile viewport, touch Start, and held directional touch input
 
-A physical Android device test has not yet been performed. The touch controls are implemented, but must still be checked on the actual phone before the group claims mobile behavior is fully verified.
+Genuine Chromium screenshots are in [`screenshots/`](screenshots/) and linked in the [output screenshot guide](docs/OUTPUT_SCREENSHOTS.md).
+
+**Not yet tested:** a physical Android phone. The mobile checks use Chromium's touch emulation, not the actual phone. The screenshots are also headless desktop-browser captures, not camera photos of the phone.
 
 ## Team
 
