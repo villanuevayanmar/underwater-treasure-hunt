@@ -6,8 +6,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: underwater-web-build-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -44,7 +48,27 @@ jobs:
           test -s build/underwater_treasure_hunt.js
           test -s build/underwater_treasure_hunt.wasm
 
-      - name: Save browser build
+      - name: Install Chromium test tools
+        run: |
+          npm install --prefix /tmp/underwater-playwright playwright
+          /tmp/underwater-playwright/node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Start local web server
+        run: |
+          python3 -m http.server 8000 --directory build > /tmp/underwater-http.log 2>&1 &
+          for attempt in $(seq 1 20); do
+            if curl --fail http://127.0.0.1:8000/underwater_treasure_hunt.html >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Test the game in Chromium
+        env:
+          NODE_PATH: /tmp/underwater-playwright/node_modules
+        run: node .github/scripts/browser-smoke.cjs
+
+      - name: Save browser build and screenshots
         uses: actions/upload-artifact@v7
         with:
           name: underwater-treasure-hunt-web
@@ -52,5 +76,17 @@ jobs:
             build/underwater_treasure_hunt.html
             build/underwater_treasure_hunt.js
             build/underwater_treasure_hunt.wasm
+            screenshots/*.png
           if-no-files-found: error
           retention-days: 7
+
+      - name: Add genuine browser screenshots to repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add screenshots/*.png
+          if ! git diff --cached --quiet; then
+            git commit -m "Add browser-tested game screenshots"
+            git push
+          fi
