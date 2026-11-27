@@ -1,6 +1,5 @@
 #include "raylib.h"
 
-#include <math.h>
 #include <stdio.h>
 
 #if defined(PLATFORM_WEB)
@@ -112,8 +111,13 @@ static Rectangle GetActionArea(void)
 
 static bool ButtonPressed(Rectangle area)
 {
-    return IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
-           CheckCollisionPointRec(GetMousePosition(), area);
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+        CheckCollisionPointRec(GetMousePosition(), area)) return true;
+
+    if (IsGestureDetected(GESTURE_TAP) &&
+        CheckCollisionPointRec(GetTouchPosition(0), area)) return true;
+
+    return false;
 }
 
 static void DrawCenteredText(const char *text, int y, int size, Color color)
