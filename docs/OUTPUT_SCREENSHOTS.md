@@ -15,6 +15,7 @@ These are genuine screenshots captured by the GitHub Actions Chromium test from 
 The test verified that:
 - The desktop canvas opens at 960 × 540.
 - The title screen starts the game.
+- Pressing SPACE while far from the treasure does not collect it.
 - Keyboard input moves the submarine to the cave.
 - The submarine stops when it reaches a rock.
 - The nearby treasure can be collected and opens the completion screen.
