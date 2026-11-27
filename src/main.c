@@ -114,8 +114,9 @@ static bool ButtonPressed(Rectangle area)
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
         CheckCollisionPointRec(GetMousePosition(), area)) return true;
 
-    if (IsGestureDetected(GESTURE_TAP) &&
-        CheckCollisionPointRec(GetTouchPosition(0), area)) return true;
+    for (int i = 0; i < GetTouchPointCount(); i++) {
+        if (CheckCollisionPointRec(GetTouchPosition(i), area)) return true;
+    }
 
     return false;
 }
