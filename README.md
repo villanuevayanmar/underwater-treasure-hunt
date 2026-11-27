@@ -43,7 +43,9 @@ The browser build contains three files that must stay together:
 
 The HTML must be served over HTTP/HTTPS so the browser can load the JavaScript and WebAssembly files. Opening the HTML directly from a phone's file manager may not work. The artifact is temporary and expires after 7 days.
 
-A permanent public playable URL has not been deployed yet.
+**Play the deployed game:** https://underwater-treasure-hunt.vercel.app
+
+The production URL is public and does not require group members to join the Vercel team. Preview deployments remain protected. The Vercel project is linked to this repository's `main` branch and serves the generated files from `site/`. GitHub Actions rebuilds the WebAssembly game and commits the updated browser files; Vercel then deploys the static site.
 
 ## Controls
 
