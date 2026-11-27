@@ -208,7 +208,7 @@ static void DrawCave(void)
     DrawEllipse(790, 365, 35, 24, (Color){76, 101, 99, 255});
     DrawEllipse(895, 368, 36, 28, (Color){73, 98, 97, 255});
     DrawEllipse(830, 334, 46, 22, (Color){82, 107, 104, 255});
-    DrawText("HIDDEN CAVE", 790, 300, 14, Fade(RAYWHITE, 0.85f));
+    DrawText("HIDDEN CAVE", 812, 275, 14, Fade(RAYWHITE, 0.85f));
 }
 
 static void DrawTreasure(void)
@@ -507,7 +507,7 @@ static void DrawGame(void)
     DrawText(timerText, SCREEN_WIDTH - 150, 18, 18, GOLD);
 
     if (NearTreasure() && !treasure.collected) {
-        DrawText("PRESS SPACE OR COLLECT", 655, 280, 17, GOLD);
+        DrawText("PRESS SPACE OR COLLECT", 630, 250, 17, GOLD);
     } else if (messageTimer > 0) {
         DrawText("GET CLOSER TO THE CHEST", 350, 92, 18, GOLD);
     }
